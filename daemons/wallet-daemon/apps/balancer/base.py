@@ -3,7 +3,7 @@ class CoreBalancer:
 
 
 class Balancer:
-    def __init__(self):
+    def __init__(self, logger=None):
         pass
 
     def accept(self):

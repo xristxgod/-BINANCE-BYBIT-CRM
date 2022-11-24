@@ -134,24 +134,20 @@ class GateClient:
 class BaseGateway:
     cls_node: Type[AbstractNode]
 
-    def __init__(self):
-        self.logger = self.__get_logger(network=self.cls_node.network)
+    def __init__(self, logger=None):
+        if logger is None:
+            logger = meta.get_logger(self.__class__.__name__)
+        self.logger = logger
 
         self.client = GateClient(logger=self.logger, node=self.cls_node)
 
+    @property
     def gate(self) -> GateClient:
         return self.client
 
-    @classmethod
-    def __get_logger(cls, network: str = 'base') -> Type:
-        return type(
-            f'{network.title()}GatewayLogger',
-            (meta.Logger,),
-            {'path': f'{network.lower()}_gate_logger.log'}
-        )
-
 
 __all__ = [
+    'GateClient',
     'BaseGateway',
     'AbstractNode'
 ]

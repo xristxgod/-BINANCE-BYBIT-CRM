@@ -1,17 +1,19 @@
 from typing import Type, Tuple
 
-import src.abstract as abstracts
+import src.abstract as abstract
 import gateway.gate as gate
 from apps.balancer.base import Balancer
+
+import meta
 
 
 class CoreDaemon:
 
-    def __init__(self, logger, node: Type[abstracts.AbstractNode]):
+    def __init__(self, logger, gate_client: gate.GateClient):
         self.logger = logger
-        self.__node = node
+        self.__gate_client = gate_client
 
-    async def processing_block(self):
+    async def processing_blocks(self):
         pass
 
     async def processing_transaction(self):
@@ -19,14 +21,22 @@ class CoreDaemon:
 
 
 class Daemon:
-    cls_senders: Tuple[abstracts.AbstractSender] = ()
+    cls_senders: Tuple[abstract.AbstractSender] = ()
 
-    client: Type[abstracts.AbstractClient]
+    client: Type[abstract.AbstractClient]
     balancer: Type[Balancer]
-    gate_client: Type[gate.BaseGateway]
+    gateway_client: Type[gate.BaseGateway]
 
     def __init__(self):
-        pass
+        self.logger = meta.get_logger(self.__class__.__name__)
+
+        self.gate_client = self.gateway_client.__call__(self.logger)
+        self.client = self.client.__call__(self.logger)
+
+        self.core = CoreDaemon(
+            logger=self.logger,
+            gate_client=self.gateway_client.gate
+        )
 
     async def thread(self):
         pass

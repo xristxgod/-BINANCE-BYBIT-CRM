@@ -1,2 +1,2 @@
 from . import tron
-from .base import BaseGateway, AbstractNode
+from .base import BaseGateway, AbstractNode, GateClient

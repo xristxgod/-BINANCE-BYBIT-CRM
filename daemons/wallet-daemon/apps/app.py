@@ -14,7 +14,7 @@ class TronDaemon(daemon.Daemon):
 
     client = client.InternalClient
     balancer = TronBalancer
-    gate_client = gateway.TronGateway
+    gateway_client = gateway.TronGateway
 
 
 __all__ = [
