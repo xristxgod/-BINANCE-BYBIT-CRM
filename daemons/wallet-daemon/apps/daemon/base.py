@@ -83,6 +83,7 @@ class CoreDaemon:
             body=transactions
         )
 
+
 class Daemon:
     cls_senders: Tuple[abstract.AbstractSender] = ()
 
