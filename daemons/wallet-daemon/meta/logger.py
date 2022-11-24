@@ -23,19 +23,21 @@ class MetaLogger(type):
 
 
 class Logger(metaclass=MetaLogger):
+    path: str
 
     @classmethod
     def _send(cls, message: str):
-        pass
+        if hasattr(cls, 'cls_senders'):
+            pass
 
     @classmethod
     def log(cls, message: str, *, method: str = 'info'):
         pass
 
 
-def get_logger(logger_name: str):
+def get_logger(logger_name: str, **extra):
     return type(
         logger_name.title(),
         (Logger,),
-        {'path': f'{logger_name.lower()}.log'}
+        {'path': f'{logger_name.lower()}.log', **extra}
     )

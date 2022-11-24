@@ -1,8 +1,6 @@
 from typing import Tuple
 
-
-class AbstractSender:
-    pass
+from src.abstracts import AbstractSender
 
 
 class CoreDaemon:
@@ -10,7 +8,7 @@ class CoreDaemon:
 
 
 class Daemon:
-    cls_sender: Tuple[AbstractSender] = ()
+    cls_senders: Tuple[AbstractSender] = ()
     node: str
 
     def __init__(self):
