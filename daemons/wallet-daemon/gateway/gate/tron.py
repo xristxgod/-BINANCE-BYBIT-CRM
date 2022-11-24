@@ -161,7 +161,7 @@ class Node(base.AbstractNode):
 
         raise NotImplementedError
 
-    async def sing_transaction(self, raw_data: str, private_key: str) -> str:
+    async def sign_transaction(self, raw_data: str, private_key: str) -> str:
         raise NotImplementedError
 
     async def send_transaction(self, raw_transaction: str) -> TransactionSchema:

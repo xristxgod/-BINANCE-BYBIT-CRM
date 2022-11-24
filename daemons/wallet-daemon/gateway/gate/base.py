@@ -1,6 +1,6 @@
 import os
 import decimal
-from typing import NoReturn, Type, List
+from typing import NoReturn, Type, Optional, List
 
 import aiofiles
 
@@ -59,11 +59,22 @@ class DefaultTransactionManager:
         self.logger = cls_logger()
         self.__node = node
 
-    async def create_transaction(self, from_: str, to: str, amount: decimal.Decimal) -> RawTransaction:
+    async def create_transaction(
+            self, from_: str, to: str, amount: decimal.Decimal, token: Optional[str] = None
+    ) -> RawTransaction:
+        self.logger.log('{} :: Create transaction :: Data: {} :: Token: {}'.format(
+            self.__class__.__name__, {'form': from_, 'to': to, 'amount': amount}, token if token else 'Native'
+        ))
         return await self.__node.create_transaction(from_, to, amount=amount)
 
     async def send_transaction(self, raw_data: str, private_key: str) -> TransactionSchema:
-        raw_transaction = await self.__node.sing_transaction(raw_data=raw_data, private_key=private_key)
+        self.logger.log('{} :: Send transaction :: Sign :: Raw data: {}'.format(
+            self.__class__.__name__, raw_data
+        ))
+        raw_transaction = await self.__node.sign_transaction(raw_data=raw_data, private_key=private_key)
+        self.logger.log('{} :: Send transaction :: Send :: Raw Transaction: {}'.format(
+            self.__class__.__name__, raw_data
+        ))
         return await self.__node.send_transaction(raw_transaction=raw_transaction)
 
     async def get_transaction_by_transaction_id(self, transaction_id: str) -> TransactionSchema:

@@ -3,4 +3,6 @@ class CoreBalancer:
 
 
 class Balancer:
-    pass
+    def accept(self):
+        pass
+

@@ -1,18 +1,32 @@
-from typing import Tuple
+from typing import Type, Tuple
 
-from src.abstracts import AbstractSender
+from apps.balancer.base import Balancer
+from src.abstracts import AbstractSender, AbstractNode
 
 
 class CoreDaemon:
-    pass
+
+    def __init__(self, logger, node: Type[AbstractNode]):
+        pass
+
+    async def processing_block(self):
+        pass
+
+    async def processing_transaction(self):
+        pass
 
 
 class Daemon:
     cls_senders: Tuple[AbstractSender] = ()
-    node: str
+    balancer: Type[Balancer]
+    node: Type[AbstractNode]
 
     def __init__(self):
         pass
 
-    def run(self):
+    async def thread(self):
         pass
+
+    def run(self):
+        while True:
+            pass
