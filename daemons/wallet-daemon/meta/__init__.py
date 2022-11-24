@@ -19,7 +19,7 @@ class MetaLogger(type):
     logger: Optional[logging.Logger]
 
     def __new__(mcs, class_name: str, bases: Tuple, attrs: Dict, **kwargs):
-        logger_obj = super(MetaLogger, mcs).__new__(mcs, class_name, bases, attrs)
+        obj = super(MetaLogger, mcs).__new__(mcs, class_name, bases, attrs)
         if attrs.get('path') is not None:
             logger = logging.getLogger('logger_' + class_name.lower())
             logger.setLevel(logging.INFO)
@@ -28,12 +28,20 @@ class MetaLogger(type):
                 formatter = logging.Formatter('%(asctime)s :: %(levelname)s\n%(message)s\n----------------')
                 handler.setFormatter(formatter)
                 logger.addHandler(handler)
-            setattr(logger_obj, 'logger', logger)
-        return
+            setattr(obj, 'logger', logger)
+        return obj
 
 
 class Logger(metaclass=MetaLogger):
-    pass
+
+    @classmethod
+    def _send(cls, message: str):
+        pass
+
+    @classmethod
+    def log(cls, message: str, *, method: str = 'info'):
+        pass
+
 
 
 class Singleton(metaclass=SingletonMeta):
