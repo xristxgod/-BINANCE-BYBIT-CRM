@@ -1,11 +1,13 @@
+import time
 import asyncio
+import dataclasses
 from typing import Type, Optional, Dict, Tuple, List
 
 import meta
 import src.abstract as abstract
 import gateway.gate as gate
 from apps.balancer.base import Balancer
-from src.schemas import TransactionSchema
+from src.schemas import MessageSchemas, MessageHeadersSchemas, TransactionSchema
 
 
 # [{address: privateKey}, ...]
@@ -39,7 +41,7 @@ class CoreDaemon:
                 return transaction
         return None
 
-    async def accept(self, block_number: int, addresses: List[str]) -> List[TransactionSchema]:
+    async def processing_block(self, block_number: int, addresses: List[str]) -> List[TransactionSchema]:
         block = await self.__gate_client.block.get_block_by_id(block_number=block_number)
         if len(block.transactions) == 0:
             return []
@@ -58,6 +60,22 @@ class CoreDaemon:
             self.__class__.__name__, any(transactions)
         ))
         return list(filter(lambda x: x is not None, transactions))
+
+    async def handler(self, addresses: List[str]) -> Optional[MessageSchemas]:
+        block_number = await self.__gate_client.block.get_block_in_storage()
+        if block_number >= await self.__gate_client.block.get_latest_block_number():
+            await asyncio.sleep(10)
+            return None
+        transactions = await self.processing_block(block_number, addresses=addresses)
+        await self.__gate_client.block.save_block_to_storage(block_number+1)
+        return MessageSchemas(
+            headers=MessageHeadersSchemas(
+                blockNumber=block_number,
+                timestamp=int(time.time()),
+                network=self.__gate_client.node.network
+            ),
+            body=transactions
+        )
 
 
 class Daemon:
@@ -86,8 +104,10 @@ class Daemon:
 
         self.logger = meta.get_logger(self.__class__.__name__)
 
-        self.gate_client = self.gateway_client.__call__(self.logger)
-        self.client = self.client.__call__(self.logger)
+        self.gateway_client: gate.BaseGateway = self.gateway_client.__call__(self.logger)
+
+        if self.client is not None:
+            self.client: abstract.AbstractClient = self.client.__call__(self.logger)
 
         self.core = CoreDaemon(
             logger=self.logger,
@@ -108,15 +128,30 @@ class Daemon:
             self.only_inputs, self.only_outputs = False, False
 
     async def handler(self):
-        self.logger.log('{} :: Start Interation'.format(
-            self.__class__.__name__
+        addresses = self.addresses if self.addresses is not None else await self.client.get_wallets()
+
+        self.logger.log('{} :: Start Interation :: Addresses: {}'.format(
+            self.__class__.__name__, addresses
         ))
 
-        transactions = await self.core.accept()
+        message = await self.core.handler(addresses=addresses)
+
+        if message is not None and len(self.cls_senders) != 0:
+            for cls_sender in self.cls_senders:
+                message = dataclasses.asdict(message)
+                self.logger.log('{} :: Sender manager: {} :: Send message: {}'.format(
+                    self.__class__.__name__, cls_sender.__class__.__name__, message
+                ))
+                await cls_sender.send(message=message)
+
+        self.logger.log('{} :: End iteration :: Addresses: {}'.format(
+            self.__class__.__name__, addresses
+        ))
 
     def run(self):
         while True:
-            pass
+            await self.handler()
+            await asyncio.sleep(1)
 
     async def thread(self, **params):
-        pass
+        raise NotImplementedError

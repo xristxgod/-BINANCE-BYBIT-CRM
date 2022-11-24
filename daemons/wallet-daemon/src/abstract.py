@@ -1,6 +1,6 @@
 import abc
 import decimal
-from typing import Optional, List
+from typing import Optional, List, Any
 
 from src.schemas import TransactionSchema, BlockSchema, RawTransaction
 
@@ -43,8 +43,8 @@ class AbstractNode:
 
 class AbstractSender:
 
-    @abc.abstractmethod
-    async def send(self): ...
+    @abc.abstractclassmethod
+    async def send(cls, message: Any, **extra): ...
 
 
 class AbstractClient:

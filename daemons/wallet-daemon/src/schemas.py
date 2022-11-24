@@ -37,3 +37,16 @@ class TransactionSchema:
 class BlockSchema:
     headers: BlockHeaderSchema
     transactions: List[TransactionSchema]
+
+
+@dataclass()
+class MessageHeadersSchemas:
+    network: str
+    blockNumber: int
+    timestamp: int
+
+
+@dataclass()
+class MessageSchemas:
+    headers: MessageHeadersSchemas
+    body: List[TransactionSchema]
