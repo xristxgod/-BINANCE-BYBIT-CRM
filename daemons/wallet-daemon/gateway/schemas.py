@@ -18,7 +18,7 @@ class ParticipantSchema:
 @dataclass()
 class RawTransaction:
     rawData: str
-    fee: str
+    fee: decimal.Decimal
     extra: Dict = field(default_factory=dict)
 
 
