@@ -7,7 +7,7 @@ import aiofiles
 import meta
 import settings as settings
 from src.schemas import BlockSchema, TransactionSchema, RawTransaction
-from src.abstracts import AbstractNode
+from src.abstract import AbstractNode
 
 
 class DefaultBlockManager:

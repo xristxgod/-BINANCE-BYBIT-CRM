@@ -47,7 +47,7 @@ class AbstractSender:
     async def send(self): ...
 
 
-class AbstractAPIClient:
+class AbstractClient:
 
     @abc.abstractmethod
     async def get_wallets(self): ...

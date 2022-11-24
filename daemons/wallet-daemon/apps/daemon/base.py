@@ -1,7 +1,8 @@
 from typing import Type, Tuple
 
+import src.abstract as abstracts
+import gateway.gate as gate
 from apps.balancer.base import Balancer
-import src.abstracts as abstracts
 
 
 class CoreDaemon:
@@ -20,9 +21,9 @@ class CoreDaemon:
 class Daemon:
     cls_senders: Tuple[abstracts.AbstractSender] = ()
 
-    api_client: Type[abstracts.AbstractAPIClient]
+    client: Type[abstracts.AbstractClient]
     balancer: Type[Balancer]
-    node: Type[abstracts.AbstractNode]
+    gate_client: Type[gate.BaseGateway]
 
     def __init__(self):
         pass
