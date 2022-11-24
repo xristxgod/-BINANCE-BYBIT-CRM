@@ -44,5 +44,13 @@ class AbstractNode:
 class AbstractSender:
 
     @abc.abstractmethod
-    async def send(self):
-        pass
+    async def send(self): ...
+
+
+class AbstractAPIClient:
+
+    @abc.abstractmethod
+    async def get_wallets(self): ...
+
+    @abc.abstractmethod
+    async def get_wallet(self, address: str): ...
