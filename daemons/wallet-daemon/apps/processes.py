@@ -8,5 +8,5 @@ class Core:
     )
 
     @classmethod
-    def handler(cls):
+    def start(cls):
         pass
