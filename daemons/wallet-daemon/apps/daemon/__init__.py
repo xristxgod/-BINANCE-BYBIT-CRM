@@ -195,7 +195,7 @@ class Daemon:
             self.__class__.__name__, addresses
         ))
 
-    def run(self):
+    async def run(self):
         while True:
             await self.handler()
             await asyncio.sleep(1)

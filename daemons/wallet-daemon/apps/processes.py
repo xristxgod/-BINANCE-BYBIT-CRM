@@ -1,15 +1,28 @@
+import asyncio
+import multiprocessing
+
+from apps.daemon import Daemon
 from .app import TronDaemon
 
 
 class Core:
 
-    daemon = (
+    daemons = (
         TronDaemon,
     )
 
     @classmethod
+    def run(cls, daemon: Daemon):
+        loop = asyncio.get_event_loop()
+        loop.run_until_complete(daemon.run)
+
+    @classmethod
     def start(cls):
-        pass
+        processes = []
+        for daemon in cls.daemons:
+            process = multiprocessing.Process(target=cls.run, args=(daemon(),))
+            processes.append(process)
+            process.start()
 
 
 class CliCore:
