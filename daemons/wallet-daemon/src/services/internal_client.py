@@ -1,6 +1,6 @@
-class CoreClient:
+class CoreAPIClient:
     pass
 
 
-class Client(CoreClient):
+class APIClient(CoreAPIClient):
     pass

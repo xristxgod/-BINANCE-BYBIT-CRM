@@ -3,4 +3,10 @@ class CoreDaemon:
 
 
 class Daemon:
-    pass
+    cls_sender = ()
+
+    def __init__(self):
+        pass
+
+    def run(self):
+        pass

@@ -43,6 +43,5 @@ class Logger(metaclass=MetaLogger):
         pass
 
 
-
 class Singleton(metaclass=SingletonMeta):
     pass
