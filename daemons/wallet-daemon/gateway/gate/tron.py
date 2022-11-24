@@ -4,7 +4,7 @@ from typing import Optional, List
 from tronpy.async_tron import AsyncContract, TAddress
 from tronpy.async_tron import AsyncTron, AsyncHTTPProvider
 
-from src import settings as settings
+import settings as settings
 import gateway.gate.base as base
 from src.schemas import BlockHeaderSchema, ParticipantSchema, TransactionSchema, BlockSchema, RawTransaction
 

@@ -2,7 +2,7 @@ import os
 import logging
 from typing import Optional, Tuple, Dict
 
-import src.settings as settings
+import settings
 
 
 class MetaLogger(type):
