@@ -1,5 +1,5 @@
 import decimal
-from typing import Optional, Union
+from typing import Optional, List
 
 from tronpy.async_tron import AsyncContract, TAddress
 from tronpy.async_tron import AsyncTron, AsyncHTTPProvider
@@ -167,6 +167,8 @@ class Node(base.AbstractNode):
     async def send_transaction(self, raw_transaction: str) -> TransactionSchema:
         raise NotImplementedError
 
+    async def get_transaction(self, transaction_id: str) -> TransactionSchema:
+        raise NotImplementedError
 
-class GateClient(base.BaseGateClient):
-    cls_node = Node
+    async def get_transactions_by_address(self, address: str) -> List[TransactionSchema]:
+        raise NotImplementedError

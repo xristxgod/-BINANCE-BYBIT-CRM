@@ -11,16 +11,12 @@ from gateway.schemas import BlockSchema, TransactionSchema, RawTransaction
 
 
 class AbstractNode:
-    network_name: str
+    network: str
     endpoint_uri: str
 
     class SmartContract(abc.ABC):
         @abc.abstractclassmethod
         async def connect(cls, address: str): ...
-
-    @property
-    def network(self) -> str:
-        return self.network
 
     @abc.abstractmethod
     async def get_block(self, block_number: int) -> BlockSchema: ...
@@ -129,9 +125,7 @@ class DefaultWalletManager:
         return raw_transaction.fee
 
 
-class BaseGateClient:
-    cls_node: Type[AbstractNode]
-
+class GateClient:
     block_manager: Type[DefaultBlockManager] = DefaultBlockManager
     transaction_manager: Type[DefaultTransactionManager] = DefaultTransactionManager
     wallet_manager: Type[DefaultWalletManager] = DefaultWalletManager
@@ -141,22 +135,12 @@ class BaseGateClient:
         '__transaction_manager', '__wallet_manager'
     )
 
-    def __init__(self, **kwargs):
-        self.__node_manager = self.cls_node()
-
-        self.logger = self.__get_logger(self.__node_manager.network)
+    def __init__(self, logger, node: Type[AbstractNode], **kwargs):
+        self.__node_manager = node()
 
         self.__block_manager = self.block_manager(node=self.__node_manager)
-        self.__transaction_manager = self.transaction_manager(node=self.__node_manager, cls_logger=self.logger)
-        self.__wallet_manager = self.wallet_manager(node=self.__node_manager, cls_logger=self.logger)
-    
-    @classmethod
-    def __get_logger(cls, network: str = 'base') -> Type:
-        return type(
-            f'{network.title()}GateClientLogger',
-            (meta.Logger,),
-            {'path': f'{network.lower()}_gate_logger.log'}
-        )
+        self.__transaction_manager = self.transaction_manager(node=self.__node_manager, cls_logger=logger)
+        self.__wallet_manager = self.wallet_manager(node=self.__node_manager, cls_logger=logger)
 
     def block(self) -> DefaultBlockManager:
         return self.__block_manager
@@ -171,7 +155,27 @@ class BaseGateClient:
         return self.__node_manager
 
 
+class BaseGateway:
+    cls_node: Type[AbstractNode]
+
+    def __init__(self):
+        self.logger = self.__get_logger(network=self.cls_node.network)
+
+        self.client = GateClient(logger=self.logger, node=self.cls_node)
+
+    def gate(self) -> GateClient:
+        return self.client
+
+    @classmethod
+    def __get_logger(cls, network: str = 'base') -> Type:
+        return type(
+            f'{network.title()}GatewayLogger',
+            (meta.Logger,),
+            {'path': f'{network.lower()}_gate_logger.log'}
+        )
+
+
 __all__ = [
-    'BaseGateClient',
+    'BaseGateway',
     'AbstractNode'
 ]
