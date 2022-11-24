@@ -1,7 +1,7 @@
 import time
 import asyncio
 import dataclasses
-from typing import Type, Optional, Dict, Tuple, List
+from typing import NoReturn, Type, Optional, Dict, Tuple, List
 
 import meta
 import src.abstract as abstract
@@ -62,12 +62,18 @@ class CoreDaemon:
         return list(filter(lambda x: x is not None, transactions))
 
     async def handler(self, addresses: List[str]) -> Optional[MessageSchemas]:
-        block_number = await self.__gate_client.block.get_block_in_storage()
-        if block_number >= await self.__gate_client.block.get_latest_block_number():
-            await asyncio.sleep(10)
-            return None
-        transactions = await self.processing_block(block_number, addresses=addresses)
-        await self.__gate_client.block.save_block_to_storage(block_number+1)
+        try:
+            block_number = await self.__gate_client.block.get_block_in_storage()
+            if block_number >= await self.__gate_client.block.get_latest_block_number():
+                await asyncio.sleep(10)
+                return None
+            transactions = await self.processing_block(block_number, addresses=addresses)
+        except Exception as error:
+            # Обработать случай когда что то сломалось и транзакция не обратоталсь
+            raise
+        else:
+            await self.__gate_client.block.save_block_to_storage(block_number + 1)
+
         return MessageSchemas(
             headers=MessageHeadersSchemas(
                 blockNumber=block_number,
@@ -76,7 +82,6 @@ class CoreDaemon:
             ),
             body=transactions
         )
-
 
 class Daemon:
     cls_senders: Tuple[abstract.AbstractSender] = ()
@@ -127,6 +132,17 @@ class Daemon:
         if self.only_inputs and self.only_outputs:
             self.only_inputs, self.only_outputs = False, False
 
+    async def handler_sender(self, message: MessageSchemas) -> NoReturn:
+        for cls_sender in self.cls_senders:
+            message = dataclasses.asdict(message)
+            self.logger.log('{} :: Sender manager: {} :: Send message: {}'.format(
+                self.__class__.__name__, cls_sender.__class__.__name__, message
+            ))
+            await cls_sender.send(message=message)
+
+    async def handler_balancer(self, message: MessageSchemas) -> NoReturn:
+        pass
+
     async def handler(self):
         addresses = self.addresses if self.addresses is not None else await self.client.get_wallets()
 
@@ -136,13 +152,12 @@ class Daemon:
 
         message = await self.core.handler(addresses=addresses)
 
-        if message is not None and len(self.cls_senders) != 0:
-            for cls_sender in self.cls_senders:
-                message = dataclasses.asdict(message)
-                self.logger.log('{} :: Sender manager: {} :: Send message: {}'.format(
-                    self.__class__.__name__, cls_sender.__class__.__name__, message
-                ))
-                await cls_sender.send(message=message)
+        if message is not None:
+            if len(self.cls_senders) != 0:
+                await self.handler_sender(message)
+
+            if self.balancer is not None:
+                await self.handler_balancer(message)
 
         self.logger.log('{} :: End iteration :: Addresses: {}'.format(
             self.__class__.__name__, addresses
