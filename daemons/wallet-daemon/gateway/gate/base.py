@@ -118,15 +118,19 @@ class GateClient:
         self.__transaction_manager = self.transaction_manager(node=self.__node_manager, cls_logger=logger)
         self.__wallet_manager = self.wallet_manager(node=self.__node_manager, cls_logger=logger)
 
+    @property
     def block(self) -> DefaultBlockManager:
         return self.__block_manager
 
+    @property
     def transaction(self) -> DefaultTransactionManager:
         return self.__transaction_manager
 
+    @property
     def wallet(self) -> DefaultWalletManager:
         return self.__wallet_manager
 
+    @property
     def node(self) -> AbstractNode:
         return self.__node_manager
 
