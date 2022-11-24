@@ -6,8 +6,10 @@ from typing import NoReturn, Type, Optional, Dict, Tuple, List
 import meta
 import src.abstract as abstract
 import gateway.gate as gate
-from apps.balancer.base import Balancer
+from apps.balancer import Balancer
 from src.schemas import MessageSchemas, MessageHeadersSchemas, TransactionSchema
+
+from worker.celery import celery_storage, celery_app
 
 
 # [{address: privateKey}, ...]
@@ -142,7 +144,24 @@ class Daemon:
             await cls_sender.send(message=message)
 
     async def handler_balancer(self, message: MessageSchemas) -> NoReturn:
-        pass
+        self.logger.log('{} :: Send to Balancer:: Message: {}'.format(
+            self.__class__.__name__, dataclasses.asdict(message)
+        ))
+
+        balancer = self.balancer(
+
+        )
+
+        can_go, wait_time = await celery_storage.can_go(
+            'start_balancer_balancer_{}'.format(1)
+        )
+        extra = {"countdown": wait_time} if not can_go and wait_time > 5 else {}
+        celery_app.send_task(
+            f'worker.celery.worker.start_balancer',
+            args=[balancer],
+            **extra
+        )
+        raise NotImplementedError
 
     async def handler(self):
         addresses = self.addresses if self.addresses is not None else await self.client.get_wallets()
