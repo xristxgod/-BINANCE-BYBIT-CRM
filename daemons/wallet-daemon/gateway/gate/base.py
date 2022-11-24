@@ -6,7 +6,7 @@ from typing import NoReturn, Type, Optional, List
 import aiofiles
 
 import meta
-import src.settings as settings
+import settings as settings
 from gateway.schemas import BlockSchema, TransactionSchema, RawTransaction
 
 
