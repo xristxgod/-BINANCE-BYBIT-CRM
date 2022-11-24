@@ -4,9 +4,9 @@ from typing import Optional, List
 from tronpy.async_tron import AsyncContract, TAddress
 from tronpy.async_tron import AsyncTron, AsyncHTTPProvider
 
-import settings as settings
+from src import settings as settings
 import gateway.gate.base as base
-from gateway.schemas import BlockHeaderSchema, ParticipantSchema, TransactionSchema, BlockSchema, RawTransaction
+from src.schemas import BlockHeaderSchema, ParticipantSchema, TransactionSchema, BlockSchema, RawTransaction
 
 
 TOKENS = {

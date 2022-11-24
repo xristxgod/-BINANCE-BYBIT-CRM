@@ -5,8 +5,7 @@ from faker_crypto import CryptoAddress
 
 import pytest
 
-from gateway.schemas import BlockHeaderSchema, ParticipantSchema, TransactionSchema, BlockSchema, RawTransaction
-
+from src.schemas import BlockHeaderSchema, ParticipantSchema, TransactionSchema, BlockSchema
 
 fake = faker.Faker()
 fake.add_provider(CryptoAddress)

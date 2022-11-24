@@ -6,8 +6,8 @@ from typing import NoReturn, Type, Optional, List
 import aiofiles
 
 import meta
-import settings as settings
-from gateway.schemas import BlockSchema, TransactionSchema, RawTransaction
+from src import settings as settings
+from src.schemas import BlockSchema, TransactionSchema, RawTransaction
 
 
 class AbstractNode:
