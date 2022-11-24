@@ -50,3 +50,10 @@ class MessageHeadersSchemas:
 class MessageSchemas:
     headers: MessageHeadersSchemas
     body: List[TransactionSchema]
+
+
+@dataclass()
+class BalancerThreadMessage:
+    address: str
+    token: Optional[str] = None
+    extra: Dict = field(default_factory=dict)

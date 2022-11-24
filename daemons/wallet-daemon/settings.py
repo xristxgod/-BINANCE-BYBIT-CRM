@@ -14,3 +14,6 @@ INTERNAL_LOGIN = os.getenv('INTERNAL_LOGIN', 'daemon_wallet_login')
 INTERNAL_PASSWORD = os.getenv('INTERNAL_PASSWORD', 'daemon_wallet_password')
 
 TRON_GATE_URL = os.getenv('TRON_GATE_URL', 'https://api.shasta.trongrid.io/')
+
+REDIS_URL = os.getenv('REDIS_URL')
+RABBITMQ_URL = os.getenv('REDIS_URL')
