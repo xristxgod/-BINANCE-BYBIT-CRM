@@ -14,9 +14,10 @@ class AbstractNode:
     network: str
     endpoint_uri: str
 
-    class SmartContract(abc.ABC):
-        @abc.abstractclassmethod
-        async def connect(cls, address: str): ...
+    class SmartContract:
+        @classmethod
+        async def connect(cls, address: str):
+            raise NotImplementedError
 
     @abc.abstractmethod
     async def get_block(self, block_number: int) -> BlockSchema: ...
