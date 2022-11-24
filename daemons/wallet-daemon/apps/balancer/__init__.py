@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, List
 
 import meta
 from src.schemas import MessageSchemas, BalancerThreadMessage
@@ -10,6 +10,7 @@ class BalancerThread:
     def __init__(
             self, message: BalancerThreadMessage,
             gateway_client: BaseGateway,
+            addresses: Optional[List[str]] = None,
             client: Optional[AbstractClient] = None,
             logger=None
     ):
@@ -34,14 +35,15 @@ class Balancer:
     def __init__(
             self, message: MessageSchemas,
             gateway_client: BaseGateway,
+            addresses: Optional[List[str]] = None,
             client: Optional[AbstractClient] = None,
             logger=None
     ):
         self.message = message
         self.gateway_client = gateway_client
 
-        if client is not None:
-            self.client = client
+        # if client is not None:
+        #     self.client = client
 
         if logger is None:
             logger = meta.get_logger(self.__class__.__name__)

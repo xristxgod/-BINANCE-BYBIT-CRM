@@ -144,24 +144,36 @@ class Daemon:
             await cls_sender.send(message=message)
 
     async def handler_balancer(self, message: MessageSchemas) -> NoReturn:
-        self.logger.log('{} :: Send to Balancer:: Message: {}'.format(
+        self.logger.log('{} :: Send to Balancer :: Message: {}'.format(
             self.__class__.__name__, dataclasses.asdict(message)
         ))
 
         balancer = self.balancer(
-
+            message=message,
+            gateway_client=self.gateway_client,
+            client=self.client,
+            addresses=self.addresses,
+            logger=self.logger
         )
-
-        can_go, wait_time = await celery_storage.can_go(
-            'start_balancer_balancer_{}'.format(1)
-        )
-        extra = {"countdown": wait_time} if not can_go and wait_time > 5 else {}
-        celery_app.send_task(
-            f'worker.celery.worker.start_balancer',
-            args=[balancer],
-            **extra
-        )
-        raise NotImplementedError
+        try:
+            can_go, wait_time = await celery_storage.can_go(
+                'start_balancer_balancer_{}'.format(message.headers.blockNumber)
+            )
+            extra = {"countdown": wait_time} if not can_go and wait_time > 5 else {}
+            celery_app.send_task(
+                f'worker.celery.worker.start_balancer',
+                args=[balancer],
+                **extra
+            )
+        except Exception as error:
+            self.logger.log('{} :: Send to Balancer :: Failed'.format(
+                self.__class__.__name__
+            ))
+            raise
+        else:
+            self.logger.log('{} :: Send to Balancer :: Success'.format(
+                self.__class__.__name__
+            ))
 
     async def handler(self):
         addresses = self.addresses if self.addresses is not None else await self.client.get_wallets()
